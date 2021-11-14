@@ -19,8 +19,48 @@ var experiencia_laboral = [
   }
 ]
 
-app.get('/experiencia_laboral', function(req, res) {
+app.get('/experiencia-laboral', function(req, res) {
   res.send(experiencia_laboral);
+});
+
+app.get('/hacer-cookie', function(req, res) {
+  res.cookie('PW_2021-CV_Contacto', 'Algun Valor')
+  res.send("¡Hola mundo!")
+});
+
+app.get('/generar', function(req, res) {
+  var nombre = "Rafael"
+
+  res.cookie('PW_2021-CV_Contacto', 
+    JSON.stringify({
+    nombreContacto: nombre}),
+    {
+      secure:true
+    })
+
+    res.send(req.cookies)
+
+});
+
+app.get('/obtener', function(req, res) { 
+  var valor = ""
+
+  var laCookie = req.headers.cookie;
+
+  laCookie && laCookie.split(';').forEach(function( cookie ) { 
+    if(cookie.startsWith(" PW_2021-CV_Contacto"))
+    {
+      var contenido = cookie.split('%7B%22');
+      valor = contenido[1].split('%22%3A%22')[1].split('%22%7D')[0] 
+    }
+  });
+
+    res.send(valor);
+});
+
+app.get('/borrar', function(req, res) { 
+  res.clearCookie("PW_2021-CV_Contacto");
+  res.send('OK') 
 });
 
 app.listen(process.env.PORT || 3000, (a) => {
