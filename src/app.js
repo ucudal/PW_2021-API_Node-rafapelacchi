@@ -64,6 +64,12 @@ app.post('/enviar-formulario',urlencodedParser, function(req, res) {
     }
     else{
       logearRegistro(nombre, mail); 
+      res.cookie('PW_2021-CV_Contacto', 
+        JSON.stringify({
+        nombreContacto: nombre}),
+        {
+          secure:true
+        })
       res.send("El registro se hizo correctamente") 
     }
   }
