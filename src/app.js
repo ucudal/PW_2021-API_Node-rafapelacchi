@@ -15,7 +15,7 @@ getUsers();
 var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-app.get('/experiencia-laboral',cros(), function(req, res) {
+app.get('/experiencia-laboral',cors(), function(req, res) {
   res.send(experiencia_laboral);
 });
 
@@ -93,6 +93,7 @@ app.listen(process.env.PORT || 3000, (a) => {
  
 module.exports = app;
 app.use(bodyParser);
+app.use(cors());
 
 
 function getExperiencia(){   
