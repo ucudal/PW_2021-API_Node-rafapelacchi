@@ -1,23 +1,17 @@
 var express = require('express');
-
+const cvs = require('csv-parser');
 var app = express();
-
-var experiencia_laboral = [
-  {
-    empresa: "Urudata",
-    puesto: "Developer",
-    descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                                                   Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, or incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost.",
-    fechaInicio: new Date("2019-5-19"),
-    fechaFin: new Date("2021-12-03"),
-  },
-  {
-    empresa: "Datasec",
-    puesto: "Developer",
-    descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                                                   Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, or incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost.",
-    fechaInicio: new Date("2016-6-20"),
-    fechaFin: new Date("2019-5-19"),
-  }
-]
+const fs = require('fs')
+const path = require('path'); 
+var csvWriter = require('csv-write-stream') 
+var bodyParser = require('body-parser')
+var createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const experiencia_laboral = [];
+const usuariosDB = [];
+getExperiencia();
+getUsers();
+var jsonParser = bodyParser.json()
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 app.get('/experiencia-laboral', function(req, res) {
   res.send(experiencia_laboral);
@@ -25,7 +19,6 @@ app.get('/experiencia-laboral', function(req, res) {
 
 app.get('/hacer-cookie', function(req, res) {
   res.cookie('PW_2021-CV_Contacto', 'Algun Valor')
-  res.send("¡Hola mundo!")
 });
 
 app.get('/generar', function(req, res) {
@@ -43,9 +36,60 @@ app.get('/generar', function(req, res) {
 });
 
 app.get('/obtener', function(req, res) { 
-  var valor = ""
+  res.send(obtenerCookie(req.headers.cookie));
+});
 
-  var laCookie = req.headers.cookie;
+app.get('/borrar', function(req, res) { 
+  res.clearCookie("PW_2021-CV_Contacto");
+  res.send('OK') 
+});
+
+app.post('/responder-formulario',urlencodedParser, function(req, res) { 
+  var valor = obtenerCookie(req.headers.cookie);
+  if(valor){
+    var nombre = req.body.nombre
+    var mail = req.body.mail
+
+    if(!nombre){
+      res.status(303);
+      res.send("Usted no ha ingresado un nombre.") 
+    }
+    if(!mail){
+      res.status(303);
+      res.send("Usted no ha ingresado un mail.") 
+    }
+    else if(mail.indexOf("@") < 0 || mail.indexOf(".") < 0){
+      res.status(303);
+      res.send("El mail ingresado no es correcto.") 
+    }
+    else{
+      logearRegistro(nombre, mail); 
+      res.send("El registro se hizo correctamente") 
+    }
+  }
+});
+
+app.use((req, res, next) => {
+    res.status(404);
+    res.send("Error 404") 
+  }
+);
+
+app.listen(process.env.PORT || 3000, (a) => {
+  console.log("Servidor disponible en http://localhost:3000")
+});
+ 
+module.exports = app;
+app.use(bodyParser);
+
+
+function getExperiencia(){   
+  fs.createReadStream(path.join(__dirname,'./files/experiencia.csv')).pipe(cvs({}))
+  .on('data', (data) => experiencia_laboral.push(data))
+}
+
+function obtenerCookie(laCookie){
+  var valor = ""
 
   laCookie && laCookie.split(';').forEach(function( cookie ) { 
     if(cookie.startsWith(" PW_2021-CV_Contacto"))
@@ -55,16 +99,24 @@ app.get('/obtener', function(req, res) {
     }
   });
 
-    res.send(valor);
-});
+  return valor;
+}
 
-app.get('/borrar', function(req, res) { 
-  res.clearCookie("PW_2021-CV_Contacto");
-  res.send('OK') 
-});
-
-app.listen(process.env.PORT || 3000, (a) => {
-  console.log("Servidor disponible en http://localhost:3000")
-});
+function logearRegistro(nombre, mail){ 
+  usuariosDB.push({nombre: nombre,  mail: mail});
+  
+  const csvWriter = createCsvWriter({
+      path: path.join(__dirname,'./files/registrosFormulario.csv'),
+      header: [
+          {id: 'nombre', title: 'nombre'},
+          {id: 'mail', title: 'mail'}, 
+      ]
+  });
  
-module.exports = app;
+  csvWriter.writeRecords(usuariosDB)
+}
+
+function getUsers(){
+  fs.createReadStream(path.join(__dirname,'./files/registrosFormulario.csv')).pipe(cvs({}))
+  .on('data', (data) => usuariosDB.push(data)) 
+}

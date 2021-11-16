@@ -5,3 +5,8 @@ El propósito de este repositorio es proveer una plantilla de un proyecto en Nod
 Plugins Recomendados
 
 - Rest Client
+
+
+npm install csv-write-stream 
+npm i body-parser
+npm i fs
