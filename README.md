@@ -10,3 +10,4 @@ Plugins Recomendados
 npm install csv-write-stream 
 npm i body-parser
 npm i fs
+npm install validator  

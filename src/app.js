@@ -5,6 +5,7 @@ const fs = require('fs')
 const path = require('path'); 
 var csvWriter = require('csv-write-stream') 
 var bodyParser = require('body-parser')
+var validator = require('validator');
 var createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const experiencia_laboral = [];
 const usuariosDB = [];
@@ -47,8 +48,8 @@ app.get('/borrar', function(req, res) {
 app.post('/enviar-formulario',urlencodedParser, function(req, res) { 
   var valor = obtenerCookie(req.headers.cookie);
   if(valor){
-    var nombre = req.body.nombre
-    var mail = req.body.mail
+    var nombre = validator.escape(req.body.nombre);
+    var mail = validator.escape(req.body.mail);
 
     if(!nombre){
       res.status(303);
@@ -81,7 +82,7 @@ app.post('/enviar-formulario',urlencodedParser, function(req, res) {
 
 app.use((req, res, next) => {
     res.status(404);
-    res.send("Error 404") 
+    res.send('404 - No fue encontrado') 
   }
 );
 
