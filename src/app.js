@@ -55,17 +55,21 @@ app.post('/responder-formulario',urlencodedParser, function(req, res) {
       res.send("Usted no ha ingresado un nombre.") 
     }
     if(!mail){
-      res.status(303);
+      res.status(400);
       res.send("Usted no ha ingresado un mail.") 
     }
     else if(mail.indexOf("@") < 0 || mail.indexOf(".") < 0){
-      res.status(303);
+      res.status(400);
       res.send("El mail ingresado no es correcto.") 
     }
     else{
       logearRegistro(nombre, mail); 
       res.send("El registro se hizo correctamente") 
     }
+  }
+  else{
+    res.status(400);
+    res.send("alta el nombre de contacto.") 
   }
 });
 
