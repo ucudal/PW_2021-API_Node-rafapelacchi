@@ -77,7 +77,7 @@ app.post('/enviar-formulario',cors(),urlencodedParser, function(req, res) {
   }
   else{
     res.status(400);
-    res.send("alta el nombre de contacto.") 
+    res.send("Falta el nombre de contacto.") 
   }
 });
 
