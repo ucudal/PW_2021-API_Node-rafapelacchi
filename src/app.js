@@ -9,12 +9,13 @@ var validator = require('validator');
 var createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const experiencia_laboral = [];
 const usuariosDB = [];
+const cors = require('cors');
 getExperiencia();
 getUsers();
 var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-app.get('/experiencia-laboral', function(req, res) {
+app.get('/experiencia-laboral',cros(), function(req, res) {
   res.send(experiencia_laboral);
 });
 
@@ -45,7 +46,7 @@ app.get('/borrar', function(req, res) {
   res.send('OK') 
 });
 
-app.post('/enviar-formulario',urlencodedParser, function(req, res) { 
+app.post('/enviar-formulario',cors(),urlencodedParser, function(req, res) { 
   var valor = obtenerCookie(req.headers.cookie);
   if(valor){
     var nombre = validator.escape(req.body.nombre);
