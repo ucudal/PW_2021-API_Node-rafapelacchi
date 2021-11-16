@@ -16,7 +16,7 @@ var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 app.get('/experiencia-laboral',cors(), function(req, res) {
-  res.send(experiencia_laboral);
+  res.send(JSON.stringify(experiencia_laboral));
 });
 
 app.get('/hacer-cookie', function(req, res) {
