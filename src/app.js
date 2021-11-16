@@ -44,7 +44,7 @@ app.get('/borrar', function(req, res) {
   res.send('OK') 
 });
 
-app.post('/responder-formulario',urlencodedParser, function(req, res) { 
+app.post('/renviar-formulario',urlencodedParser, function(req, res) { 
   var valor = obtenerCookie(req.headers.cookie);
   if(valor){
     var nombre = req.body.nombre
