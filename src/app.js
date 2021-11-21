@@ -1,7 +1,6 @@
 var express = require('express');
 var cors = require('cors');
 var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
 const fs = require('fs')
 const path = require('path'); 
 const cvs = require('csv-parser');
@@ -13,7 +12,6 @@ getUsers();
 getExperiencia();
 
 var app = express();
-app.use(cookieParser());
 
 app.use(
   cors({
