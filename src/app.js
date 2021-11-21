@@ -1,27 +1,90 @@
 var express = require('express');
-const cvs = require('csv-parser');
-var app = express();
+var cors = require('cors');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 const fs = require('fs')
 const path = require('path'); 
-var csvWriter = require('csv-write-stream') 
-var bodyParser = require('body-parser')
+const cvs = require('csv-parser');
 var validator = require('validator');
 var createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const experiencia_laboral = [];
 const usuariosDB = [];
-const cors = require('cors');
-getExperiencia();
 getUsers();
-var jsonParser = bodyParser.json()
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+getExperiencia();
+
+var app = express();
+app.use(cookieParser());
+
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+
+app.use(express.urlencoded({
+  extended: true
+}));
+
+function obtenerCookie(laCookie){
+  var valor = ""
+
+  laCookie && laCookie.split(';').forEach(function( cookie ) { 
+    if(cookie.startsWith(" PW_2021-CV_Contacto"))
+    {
+      var contenido = cookie.split('%7B%22');
+      valor = contenido[1].split('%22%3A%22')[1].split('%22%7D')[0] 
+    }
+  });
+
+  return valor;
+}
+
+var jsonParser = bodyParser.json();
+
+app.get('/obtener',cors(), function(req, res) { 
+  var valor = obtenerCookie(req.headers.cookie);
+  var retorno = { nombre: valor}
+  res.send(retorno);
+});
+
+app.get('/borrar', function(req, res) { 
+  res.clearCookie("PW_2021-CV_Contacto");
+  res.send('OK') 
+});
 
 app.get('/experiencia-laboral',cors(), function(req, res) {
   res.send(JSON.stringify(experiencia_laboral));
 });
 
-app.get('/hacer-cookie', function(req, res) {
-  res.cookie('PW_2021-CV_Contacto', 'Algun Valor')
-});
+app.post('/enviar-formulario', jsonParser, function(req, res) { 
+    var nombre = validator.escape(req.body.nombre);
+    var mail = validator.escape(req.body.mail);
+
+    if(!nombre){
+      res.status(303);
+      res.send("Usted no ha ingresado un nombre.") 
+    }
+    if(!mail){
+      res.status(303);
+      res.send("Usted no ha ingresado un mail.") 
+    }
+    else if(mail.indexOf("@") < 0 || mail.indexOf(".") < 0){
+      res.status(303);
+      res.send("El mail ingresado no es correcto.") 
+    }
+    else{
+      logearRegistro(nombre, mail);   
+      res.cookie('PW_2021-CV_Contacto', 
+        JSON.stringify({
+        nombreContacto: nombre}),
+        {
+          secure:true
+        })
+      res.send("El registro se hizo correctamente") 
+    }
+  } 
+);
 
 app.get('/generar', function(req, res) {
   var nombre = "Rafael"
@@ -37,82 +100,17 @@ app.get('/generar', function(req, res) {
 
 });
 
-app.get('/obtener', function(req, res) { 
-  res.send(obtenerCookie(req.headers.cookie));
+app.post("/*", jsonParser, function(req, res) {
+  res.status(404).send("404 - No fue encontrado");
 });
 
-app.get('/borrar', function(req, res) { 
-  res.clearCookie("PW_2021-CV_Contacto");
-  res.send('OK') 
-});
-
-app.post('/enviar-formulario',cors(),urlencodedParser, function(req, res) { 
-  var valor = obtenerCookie(req.headers.cookie);
-  if(valor){
-    var nombre = validator.escape(req.body.nombre);
-    var mail = validator.escape(req.body.mail);
-
-    if(!nombre){
-      res.status(303);
-      res.send("Usted no ha ingresado un nombre.") 
-    }
-    if(!mail){
-      res.status(400);
-      res.send("Usted no ha ingresado un mail.") 
-    }
-    else if(mail.indexOf("@") < 0 || mail.indexOf(".") < 0){
-      res.status(400);
-      res.send("El mail ingresado no es correcto.") 
-    }
-    else{
-      logearRegistro(nombre, mail); 
-      res.cookie('PW_2021-CV_Contacto', 
-        JSON.stringify({
-        nombreContacto: nombre}),
-        {
-          secure:true
-        })
-      res.send("El registro se hizo correctamente") 
-    }
-  }
-  else{
-    res.status(400);
-    res.send("Falta el nombre de contacto.") 
-  }
-});
-
-app.use((req, res, next) => {
-    res.status(404);
-    res.send('404 - No fue encontrado') 
-  }
-);
-
-app.listen(process.env.PORT || 3000, (a) => {
+app.listen((a) => {
   console.log("Servidor disponible en http://localhost:3000")
 });
- 
-module.exports = app;
-app.use(bodyParser);
-app.use(cors());
 
-
-function getExperiencia(){   
+ function getExperiencia(){   
   fs.createReadStream(path.join(__dirname,'./files/experiencia.csv')).pipe(cvs({}))
   .on('data', (data) => experiencia_laboral.push(data))
-}
-
-function obtenerCookie(laCookie){
-  var valor = ""
-
-  laCookie && laCookie.split(';').forEach(function( cookie ) { 
-    if(cookie.startsWith(" PW_2021-CV_Contacto"))
-    {
-      var contenido = cookie.split('%7B%22');
-      valor = contenido[1].split('%22%3A%22')[1].split('%22%7D')[0] 
-    }
-  });
-
-  return valor;
 }
 
 function logearRegistro(nombre, mail){ 
@@ -133,3 +131,5 @@ function getUsers(){
   fs.createReadStream(path.join(__dirname,'./files/registrosFormulario.csv')).pipe(cvs({}))
   .on('data', (data) => usuariosDB.push(data)) 
 }
+
+module.exports = app;
