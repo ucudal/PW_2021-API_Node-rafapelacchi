@@ -76,11 +76,11 @@ app.post('/enviar-formulario', jsonParser, function(req, res) {
           domain: 'https://PW2021-APINode-rafapelacchi.rp33.repl.co',
           secure:true
         })
-      res.send("El registro se hizo correctamente") 
+      res.send("El registro se hizo  correctamente") 
     }
   } 
 );
-
+ 
 app.get('/generar', function(req, res) {
   var nombre = "Rafael"
 
