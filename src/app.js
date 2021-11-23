@@ -71,9 +71,7 @@ app.post('/enviar-formulario', jsonParser, function(req, res) {
     }
     else{
       logearRegistro(nombre, mail);   
-      res.cookie('PW_2021-CV_Contacto', 
-        JSON.stringify({
-        nombreContacto: nombre}),
+      res.cookie('PW_2021-CV_Contacto', nombre,
         { 
           domain: 'https://PW2021-APINode-rafapelacchi.rp33.repl.co',
           secure:true
