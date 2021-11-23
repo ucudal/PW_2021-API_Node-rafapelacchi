@@ -61,12 +61,11 @@ app.post("/*", jsonParser, function(req, res) {
 });
 
 app.post('/enviar-formulario', jsonParser, function(req, res) { 
-    var nombre = validator.escape(req.body.nombre);
+    var nombre = validator.escape(req.body.nombreContacto);
     var mail = validator.escape(req.body.mail);
 
     if(!nombre){
-      res.status(303);
-      res.send("Usted no ha ingresado un nombre.") 
+      return res.status(400).send("Falta el nombre de contacto");
     }
     if(!mail){
       res.status(303);
