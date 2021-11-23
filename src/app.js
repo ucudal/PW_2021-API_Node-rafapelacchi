@@ -55,6 +55,11 @@ app.get('/experiencia-laboral',cors(), function(req, res) {
   res.send(JSON.stringify(experiencia_laboral));
 });
 
+
+app.post("/*", jsonParser, function(req, res) {
+  res.status(404).send("404 - No fue encontrado");
+});
+
 app.post('/enviar-formulario', jsonParser, function(req, res) { 
     var nombre = validator.escape(req.body.nombre);
     var mail = validator.escape(req.body.mail);
@@ -76,7 +81,8 @@ app.post('/enviar-formulario', jsonParser, function(req, res) {
       res.cookie('PW_2021-CV_Contacto', 
         JSON.stringify({
         nombreContacto: nombre}),
-        {
+        { 
+          domain: 'https://PW2021-APINode-rafapelacchi.rp33.repl.co',
           secure:true
         })
       res.send("El registro se hizo correctamente") 
