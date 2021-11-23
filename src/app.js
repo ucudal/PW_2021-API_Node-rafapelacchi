@@ -61,14 +61,6 @@ app.post('/enviar-formulario', jsonParser, function(req, res) {
     if(!nombre){
       res.status(400).send('Falta el nombre de contacto');
     }
-    if(!mail){
-      res.status(303);
-      res.send("Usted no ha ingresado un mail.") 
-    }
-    else if(mail.indexOf("@") < 0 || mail.indexOf(".") < 0){
-      res.status(303);
-      res.send("El mail ingresado no es correcto.") 
-    }
     else{
       logearRegistro(nombre, mail);   
       res.cookie('PW_2021-CV_Contacto', nombre,
