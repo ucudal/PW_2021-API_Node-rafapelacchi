@@ -13,12 +13,9 @@ getExperiencia();
 
 var app = express();
 
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: '*'
+}));
 
 app.use(express.urlencoded({
   extended: true
@@ -86,9 +83,6 @@ app.post('/enviar-formulario', jsonParser, function(req, res) {
   } 
 );
 
-app.post("/*", jsonParser, function(req, res) {
-  res.status(404).send("404 - No fue encontrado");
-});
 app.get('/generar', function(req, res) {
   var nombre = "Rafael"
 
@@ -129,6 +123,10 @@ function logearRegistro(nombre, mail){
  
   csvWriter.writeRecords(usuariosDB)
 }
+
+app.post("/*", jsonParser, function(req, res) {
+  res.status(404).send("404 - No fue encontrado");
+});
 
 function getUsers(){
   fs.createReadStream(path.join(__dirname,'./files/registrosFormulario.csv')).pipe(cvs({}))
