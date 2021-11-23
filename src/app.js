@@ -55,8 +55,8 @@ app.get('/experiencia-laboral',cors(), function(req, res) {
 });
 
 app.post('/enviar-formulario', jsonParser, function(req, res) { 
-    var nombre = validator.escape(req.body.nombreContacto);
-    var mail = validator.escape(req.body.mail);
+    var nombre = req.body.nombreContacto;
+    var mail = req.body.mail;
 
     if(!nombre){
       res.status(400).send('Falta el nombre de contacto');
