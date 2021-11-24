@@ -49,9 +49,7 @@ app.get('/borrar', function(req, res) {
 });
 
 app.get('/experiencia-laboral',cors(), function(req, res) {
-  res.send({
-    "experiencia-laboral": experiencia_laboral
-  });
+  res.send(experiencia_laboral);
 });
 
 app.post('/enviar-formulario', jsonParser, function(req, res) { 
